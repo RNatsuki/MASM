@@ -8,7 +8,7 @@ COMMENT /*
 
     hline db 80 dup(196) ; the string to be printed
     vline db 24 dup(179) ; the string to be printed
-    tlc db 218 ;
+    tlc db 218 ; the string to be printed (the top left corner)
     trc db 191 ; the string to be printed (the top right corner)
     blc db 192 ; the string to be printed (the bottom left corner)
     brc db 217 ; the string to be printed (the bottom right corner)
@@ -17,7 +17,7 @@ COMMENT /*
 
   .CODE
     .STARTUP
-
+        
         ; YOUR CODE HERE
         ; SET THE VIDEO MODE
         ;============================================================================

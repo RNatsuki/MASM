@@ -50,7 +50,7 @@ COMMENT /*
         mov ah, 13h    ; set the function to print a string (13h=> print a string in color)
         mov al, 00     ; the cursor will be moved to the next space after printing the string (00=> the cursor will not be moved) (01=> the cursor will be moved)
         mov bh, 00     ; the page number (00=> the first page)
-        mov bl, 10h    ; the color of the string (4E=> yellow) 4=> the background color, E=> the foreground color
+        mov bl, 11h    ; the color of the string (4E=> yellow) 4=> the background color, E=> the foreground color
         mov cx, 79     ; the length of te string
         mov dh, 1    ; the row number (10=> the 17th row) (0-24) (0=> the first row) (24=> the last row)
         mov dl, 0     ; the column number (20=> the 33rd column) (0-79) (0=> the first column) (79=> the last column)
@@ -63,7 +63,7 @@ COMMENT /*
         mov ah, 13h    ; set the function to print a string (13h=> print a string in color)
         mov al, 00     ; the cursor will be moved to the next space after printing the string (00=> the cursor will not be moved) (01=> the cursor will be moved)
         mov bh, 00     ; the page number (00=> the first page)
-        mov bl, 10h    ; the color of the string (4E=> yellow) 4=> the background color, E=> the foreground color
+        mov bl, 11h    ; the color of the string (4E=> yellow) 4=> the background color, E=> the foreground color
         mov cx, 79     ; the length of te string
         mov dh, 23    ; the row number (10=> the 17th row) (0-24) (0=> the first row) (24=> the last row)
         mov dl, 0     ; the column number (20=> the 33rd column) (0-79) (0=> the first column) (79=> the last column)
