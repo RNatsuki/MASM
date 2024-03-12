@@ -55,6 +55,11 @@ COMMENT /*
         mov ax, 0 ; set the function to read a character (00h=> read a character)
         mov ah, 7 ; the cursor will be moved to the next space after reading a character (00=> the cursor will not be moved) (01=> the cursor will be moved)
         int 21h  ; call the interruption 21h=> read a character
+
+        cmp al,0Dh ; compare the input with 13 (13=> enter)
+        je tg_con1 ; if the input is 13, then continue
+
+
         ; ==============================================================================
         ; VALIDATE THE INPUT (IF IT IS A NUMBER)
         ; ==============================================================================
@@ -64,10 +69,9 @@ COMMENT /*
         ja tg_req1 ; if the input is greater than 57, then read again
         ; ==============================================================================
 
-        cmp al, 0Dh ; compare the input with 0Dh (0Dh=> enter)
-        je tg_con1 ; if the input is 0Dh, then go to tg_con1
 
-        
+
+
 
       tg_con1:
 
