@@ -69,7 +69,8 @@ COMMENT /*
         ja tg_req1 ; if the input is greater than 57, then read again
         ; ==============================================================================
 
-
+        cmp al,10h ; compare the input with 13 (13=> enter)
+        je tg_con1 ; if the input is 13, then continue
 
 
 
