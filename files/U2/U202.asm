@@ -103,15 +103,41 @@ COMMENT /*
 
 
       tg_err1:
+        ; SET THE VIDEO MODE FOR CLEARING THE SCREEN
+        ;============================================================================
+        MOV ah, 00h   ; set the function to set the video mode (00h=> set the video mode)
+        MOV al, 03h   ; set the video mode to 03h=> 80x25 monochrome : 16 colors (4 bits)
+        INT 10h       ; call the interruption 10h=> set the video mode to 03h
+        ;============================================================================
+
         ; ============ PRINT ============
-        mov ah, 09h    ; set the function to print a string (09h=> print a string)
-        lea dx, err    ; the address of the string
-        int 21h        ; call the interruption 21h=> print a string
-        ; ============ END PRINT  ============
+        mov ah, 13h    ; set the function to print a string (13h=> print a string in color)
+        mov al, 01h     ; the cursor will be moved to the next space after printing the string (00=> the cursor will not be moved) (01=> the cursor will be moved)
+        mov bh, 00     ; the page number (00=> the first page)
+        mov bl, 4Fh    ; the color of the string (4E=> yellow) 4=> the background color, E=> the foreground color
+        mov cx, 59     ; the length of te string
+        mov dh, 0      ; the row number (10=> the 17th row) (0-24) (0=> the first row) (24=> the last row)
+        mov dl, 0     ; the column number (20=> the 33rd column) (0-79) (0=> the first column) (79=> the last column)
+        lea bp, err  ; the address of the string
+        int 10h        ; call the interruption 10h=> print a string in color
+        ; ============ END PRINT  ====================
         ; ============ READ ============
-        mov ah, 07h    ; set the function to read a character (07h=> read a character)
-        int 21h        ; call the interruption 21h=> read a character
+        mov ah, 7 ; the cursor will be moved to the next space after reading a character (00=> the cursor will not be moved) (01=> the cursor will be moved)
+        int 21h  ; call the interruption 21h=> read a character
         ; ============ END READ ============
+         ; SET THE VIDEO MODE FOR CLEARING THE SCREEN
+        ;============================================================================
+        MOV ah, 00h   ; set the function to set the video mode (00h=> set the video mode)
+        MOV al, 03h   ; set the video mode to 03h=> 80x25 monochrome : 16 colors (4 bits)
+        INT 10h       ; call the interruption 10h=> set the video mode to 03h
+        ;============================================================================
+        mov di, 0
+        mov si, 2
+        mov num, 0
+        mov str[0], 0
+        mov str[1], 0
+        mov str[2], 0
+         
         jmp tg_num1
       tg_slr:
 
