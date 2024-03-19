@@ -1,6 +1,5 @@
 COMMENT /*
-  this program is for printing a string on the screen
-  using colors
+  this program is request a number and print it
         */
 
 .MODEL SMALL, C
@@ -47,8 +46,11 @@ COMMENT /*
         lea bp, txt  ; the address of the string
         int 10h        ; call the interruption 10h=> print a string in color
         ; ============ END PRINT  ============
+
+        ; ============ DECLARE THE COUNT ============
         mov di,0
         mov si,2
+        ; ============ END DECLARE THE COUNT ============
 
       tg_req1:
         ; ============ READ ============
@@ -56,25 +58,62 @@ COMMENT /*
         mov ah, 7 ; the cursor will be moved to the next space after reading a character (00=> the cursor will not be moved) (01=> the cursor will be moved)
         int 21h  ; call the interruption 21h=> read a character
 
-        cmp al,0Dh ; compare the input with 13 (13=> enter)
+        cmp al, 0Dh ; compare the input with 13 (13=> enter)
         je tg_con1 ; if the input is 13, then continue
-
-
         ; ==============================================================================
         ; VALIDATE THE INPUT (IF IT IS A NUMBER)
         ; ==============================================================================
-        cmp al,48 ; compare the input with 48 (48=> 0)
+        cmp al, 48 ; compare the input with 48 (48=> 0)
         jb tg_req1 ; if the input is less than 48, then read again
-        cmp al,57 ; compare the input with 57 (57=> 9)
+        cmp al, 57 ; compare the input with 57 (57=> 9)
         ja tg_req1 ; if the input is greater than 57, then read again
         ; ==============================================================================
 
-        cmp al,10h ; compare the input with 13 (13=> enter)
-        je tg_con1 ; if the input is 13, then continue
+         ;============= PRINT THE NUMBER ============
+        mov ah,2
+        mov dl, al
+        int 21h
+        ;============= END PRINT ====================
+        mov str[di], al ; store the input in the string
+        sub str[di], 48 ; convert the character to a number (48 because the ascii code of 0 is 48) when the input is 0, the output will be 0, when the input is 1, the output will be 1, ..., when the input is 9, the output will be 9
+        inc di; increase the count
+        cmp di, 3 ;
+        je tg_con1
+        jmp tg_req1 ; read again
+        ; ============ END READ ============
 
 
 
       tg_con1:
+        ; ============ CONVERT THE STRING TO NUMBER AND PRINT ============
+        dec di
+        mov ax,0
+        mov al,str[di]
+        mul base[si]
+        jo tg_err1
+        jc tg_err1
+
+        add num, al
+        jc tg_err1
+
+        dec si
+        cmp di, 0
+        je tg_slr
+        jmp tg_con1
+
+
+      tg_err1:
+        ; ============ PRINT ============
+        mov ah, 09h    ; set the function to print a string (09h=> print a string)
+        lea dx, err    ; the address of the string
+        int 21h        ; call the interruption 21h=> print a string
+        ; ============ END PRINT  ============
+        ; ============ READ ============
+        mov ah, 07h    ; set the function to read a character (07h=> read a character)
+        int 21h        ; call the interruption 21h=> read a character
+        ; ============ END READ ============
+        jmp tg_num1
+      tg_slr:
 
         ; END CODE
     .EXIT
