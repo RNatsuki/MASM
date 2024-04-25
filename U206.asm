@@ -34,7 +34,9 @@
 	txt2 db "Numero 2:  " ; Mensaje para el segundo número
 	err db "Numero invalido. Presiona cualquier tecla para continuar..." ; Mensaje de error
 
-  ;
+
+  name db "Luis Rodrigo Ibarra Ibarra"
+
 
 .CODE
   .STARTUP
@@ -120,6 +122,20 @@
     MOV dl, 29   ; Columna
     LEA bp, msg1 ; Dirección del mensaje
     INT 10h     ; Llamada a la interrupción de video
+
+
+    ; Print message -> Luis Rodrigo Ibarra Ibarra
+    MOV cx, 0
+    MOV ah, 13h ; Función para imprimir un mensaje
+    MOV al, 01h ; Número de líneas a imprimir
+    MOV bh, 00  ; Página de video
+    MOV bl, 0Fh ; Atributo de texto
+    MOV cx, 8  ; Longitud del mensaje
+    MOV dh, 26   ; Fila
+    MOV dl, 69   ; Columna
+    LEA bp, name ; Dirección del mensaje
+    INT 10h     ; Llamada a la interrupción de video
+
 
   tg_m_read:
     MOV ax, 0
