@@ -6,7 +6,7 @@
   num2 db 0;
   sum db 0;
   res db 0;
-
+  mult db 0;
   opt db 0;
 
 
@@ -14,13 +14,15 @@
   op1 db '1. Capturar numeros'
   op2 db '2. Sumar'
   op3 db '3. Restar'
-  op4 db '4. Salir'
+  op4 db '4. Multiplicar'
+  op5 db '5. Salir'
 
   ; Messages
   msg1 db 'Opcion: '
   capmsg db "Capturando numeros"
   summsg db "La suma es:"
   resmsg db "Restando numeros"
+  multmsg db "Multiplicando numeros"
   exitmsg db "Saliendo..."
 
   ; Error message
@@ -82,6 +84,18 @@
     LEA bp, op3 ; Dirección del mensaje
     INT 10h     ; Llamada a la interrupción de video
 
+    ; Print option -> 4. Multiplicar
+    MOV cx, 0
+    MOV ah, 13h ; Función para imprimir un mensaje
+    MOV al, 01h ; Número de líneas a imprimir
+    MOV bh, 00  ; Página de video
+    MOV bl, 0Fh ; Atributo de texto
+    MOV cx, 14  ; Longitud del mensaje
+    MOV dh, 6   ; Fila
+    MOV dl, 29   ; Columna
+    LEA bp, op4 ; Dirección del mensaje
+    INT 10h     ; Llamada a la interrupción de video
+
     ; Print option -> 4. Salir
     MOV cx, 0
     MOV ah, 13h ; Función para imprimir un mensaje
@@ -89,10 +103,11 @@
     MOV bh, 00  ; Página de video
     MOV bl, 0Fh ; Atributo de texto
     MOV cx, 8  ; Longitud del mensaje
-    MOV dh, 6   ; Fila
+    MOV dh, 7   ; Fila
     MOV dl, 29   ; Columna
-    LEA bp, op4 ; Dirección del mensaje
+    LEA bp, op5 ; Dirección del mensaje
     INT 10h     ; Llamada a la interrupción de video
+
 
     ; Print message -> Opcion:
     MOV cx, 0
@@ -115,7 +130,7 @@
 
     CMP al, 49
     jb tg_m_read
-    CMP al, 52
+    CMP al, 53
     ja tg_m_read
 
     mov ah, 2   ; Función para imprimir un carácter
@@ -135,6 +150,8 @@
     CMP opt, 51
     JE tg_res
     CMP opt, 52
+    JE tg_mul
+    CMP opt, 53
     JMP tg_exit
 
 
@@ -398,7 +415,7 @@
     MOV al, 01h ; Número de líneas a imprimir
     MOV bh, 00  ; Página de video
     MOV bl, 0Fh ; Atributo de texto
-    MOV cx, 13  ; Longitud del mensaje
+    MOV cx, 11  ; Longitud del mensaje
     MOV dh, 3   ; Fila
     MOV dl, 29   ; Columna
     LEA bp, summsg ; Dirección del mensaje
@@ -469,6 +486,69 @@
     ; Convierte el número en cadena
     MOV ax, 0
     MOV al, res
+    DIV base[0]
+    MOV s1[0], al
+    MOV bh, ah
+    MOV ax, 0
+    MOV al, bh
+    DIV base[1]
+    MOV s1[1], al
+    MOV s1[2], ah
+    ADD s1[0], 48
+    ADD s1[1], 48
+    ADD s1[2], 48
+
+    ; Imprime el número
+    MOV ah, 13h
+    MOV al, 00
+    MOV bh, 00
+    MOV bl, 0Fh
+    MOV cx, 3
+    MOV dh, 5
+    MOV dl, 35
+    LEA bp, s1
+    INT 10h
+
+    ; Espera un carácter
+    MOV ah, 07h
+    INT 21h
+
+    ;=======Clear Screen============
+    MOV ah, 00h
+    MOV al, 03h
+    INT 10h
+    ; ========================
+
+    JMP tg_menu
+
+
+  tg_mul:
+  ;=======Clear Screen============
+    MOV ah, 00h
+    MOV al, 03h
+    INT 10h
+    ; ========================
+
+    ; multiplica los numeros y los almacena en mult y los imprime
+    MOV al, num1
+    MUL num2
+    MOV mult, al
+
+    ; Print message -> Multiplicando numeros
+    MOV cx, 0
+    MOV ah, 13h ; Función para imprimir un mensaje
+    MOV al, 01h ; Número de líneas a imprimir
+    MOV bh, 00  ; Página de video
+    MOV bl, 0Fh ; Atributo de texto
+    MOV cx, 20  ; Longitud del mensaje
+    MOV dh, 3   ; Fila
+    MOV dl, 29   ; Columna
+    LEA bp, multmsg ; Dirección del mensaje
+    INT 10h     ; Llamada a la interrupción de video
+
+    ; Convierte el número en cadena
+    MOV ax, 0
+    MOV al, mult
     DIV base[0]
     MOV s1[0], al
     MOV bh, ah
