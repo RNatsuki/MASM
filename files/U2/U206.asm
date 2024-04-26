@@ -23,6 +23,8 @@
   resmsg db "Restando numeros"
   exitmsg db "Saliendo..."
 
+  myname db "Luis Rodrigo Ibarra"
+
   ; Error message
   str db 6 dup(0)  ; Almacena la cadena que se imprimirá
     s1  db 3 dup(' ') ;
@@ -105,6 +107,20 @@
     MOV dl, 29   ; Columna
     LEA bp, msg1 ; Dirección del mensaje
     INT 10h     ; Llamada a la interrupción de video
+
+
+    ; Print message -> Opcion:
+    MOV cx, 0
+    MOV ah, 13h ; Función para imprimir un mensaje
+    MOV al, 01h ; Número de líneas a imprimir
+    MOV bh, 00  ; Página de video
+    MOV bl, 0Fh ; Atributo de texto
+    MOV cx, 26  ; Longitud del mensaje
+    MOV dh, 23   ; Fila
+    MOV dl, 60   ; Columna
+    LEA bp, myname ; Dirección del mensaje
+    INT 10h     ; Llamada a la interrupción de video
+
 
   tg_m_read:
     MOV ax, 0
