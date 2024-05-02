@@ -1,5 +1,7 @@
+;ignore relative jumps
+ .386
 .MODEL SMALL, C
-.STACK
+.STACK 100h
 .DATA
   ; Variables
   num1 db 0;
