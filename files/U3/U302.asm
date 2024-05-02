@@ -8,7 +8,7 @@ ENDIF
   txt db 'Rodrigo Ibarra'
 .CODE
   .STARTUP
-  ; Video Mode
+    ; Video Mode
     MOV ah, 00h
     MOV al, 03h
     INT 10h
@@ -17,16 +17,8 @@ ENDIF
     MOV ax, @DATA
     MOV es, ax
 
-  m_imptxt 0fh, 14, 10, 20, txt
+    m_imptxt 0fh, 14, 10, 20, txt
 
 
   .EXIT
-; Procedures
-;------------------------------------------
-
-
-;------------------------------------------
-
-
-
 END
