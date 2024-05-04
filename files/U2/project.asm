@@ -5,11 +5,11 @@
   num1 db 0;
   num2 db 0;
   num3 db 0;
-  sum db 0;
-  res db 0;
-  mult db 0;
   opt db 0;
 
+  nummay db 0;
+  nummen db 0;
+  mediana db 0;
 
   ; Menu Options
   op1 db '1. Capturar numeros'
@@ -170,6 +170,14 @@
     JE tg_cap
     CMP opt, 50
     JE tg_show
+    CMP opt, 51
+    JE tg_may
+    CMP opt , 52
+    JE tg_men
+    CMP opt, 53
+    JE tg_med
+    CMP opt, 54
+    JE tg_exit
   tg_cap:
 
   mov num1, 0 ; Inicializa el primer número
@@ -505,9 +513,80 @@ tg_show:
     JMP tg_menu
 
 
+
+  tg_may:
+    ; Limpiar pantalla antes de mostrar el número mayor
+    MOV ah, 00h
+    MOV al, 03h
+    INT 10h
+
+    ; Inicializa el mayor como el primer número
+    mov al, num1
+    mov nummay, al
+
+    ; Compara con el segundo número
+    mov al, num2
+    cmp al, nummay
+    jle tg_check3
+    mov nummay, al
+
+  tg_check3:
+    ; Compara con el tercer número
+    mov al, num3
+    cmp al, nummay
+    jle tg_display_may
+    mov nummay, al
+
+  tg_display_may:
+    ; Convierte el mayor a cadena para mostrarlo
+    mov ax, 0
+    mov al, nummay
+    div base[0]
+    mov s1[0], al
+    mov bh, ah
+    mov ax, 0
+    mov al, bh
+    div base[1]
+    mov s1[1], al
+    mov s1[2], ah
+    add s1[0], 48
+    add s1[1], 48
+    add s1[2], 48
+
+    ; Imprime el número mayor
+    mov ah, 13h
+    mov al, 00
+    mov bh, 00
+    mov bl, 0Fh
+    mov cx, 3
+    mov dh, 10
+    mov dl, 35
+    lea bp, s1
+    int 10h
+
+    ; Espera un enter para volver al menú
+    MOV ah, 7
+    INT 21h
+    CMP al, 0Dh
+    JNE tg_menu
+    JMP tg_menu
+
+
+
+
+
+
+
+  tg_men:
+
+  tg_med:
+
+
+
  tg_exit:
 
 
   .EXIT
+
 
 END
