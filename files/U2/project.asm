@@ -578,8 +578,154 @@ tg_show:
 
 
   tg_men:
+    ; Limpiar pantalla antes de mostrar el número menor
+    MOV ah, 00h
+    MOV al, 03h
+    INT 10h
+
+    ; Inicializa el menor como el primer número
+    mov al, num1
+    mov nummen, al
+
+    ; Compara con el segundo número
+    mov al, num2
+    cmp al, nummen
+    jge tg_mcheck3
+    mov nummen, al
+
+  tg_mcheck3:
+    ; Compara con el tercer número
+    mov al, num3
+    cmp al, nummen
+    jge tg_display_men
+    mov nummen, al
+
+  tg_display_men:
+    ; Convierte el menor a cadena para mostrarlo
+    mov ax, 0
+    mov al, nummen
+    div base[0]
+    mov s1[0], al
+    mov bh, ah
+    mov ax, 0
+    mov al, bh
+    div base[1]
+    mov s1[1], al
+    mov s1[2], ah
+    add s1[0], 48
+    add s1[1], 48
+    add s1[2], 48
+
+    ; Imprime el número menor
+    mov ah, 13h
+    mov al, 00
+    mov bh, 00
+    mov bl, 0Fh
+    mov cx, 3
+    mov dh, 10
+    mov dl, 35
+    lea bp, s1
+    int 10h
+
+    ; Espera un enter para volver al menú
+    MOV ah, 7
+    INT 21h
+    CMP al, 0Dh
+    JNE tg_menu
+    JMP tg_menu
 
   tg_med:
+    ; Limpiar pantalla antes de mostrar la mediana
+    MOV ah, 00h
+    MOV al, 03h
+    INT 10h
+
+    ; Determina el mayor y el menor
+    ; Inicializa el mayor y el menor con num1
+    mov al, num1
+    mov nummay, al
+    mov nummen, al
+
+    ; Compara con num2 para encontrar el mayor y el menor
+    mov al, num2
+    cmp al, nummay
+    jle tg_may_not_2
+    mov nummay, al
+  tg_may_not_2:
+    cmp al, nummen
+    jge tg_men_not_2
+    mov nummen, al
+  tg_men_not_2:
+
+    ; Compara con num3 para encontrar el mayor y el menor
+    mov al, num3
+    cmp al, nummay
+    jle tg_may_not_3
+    mov nummay, al
+  tg_may_not_3:
+    cmp al, nummen
+    jge tg_men_not_3
+    mov nummen, al
+  tg_men_not_3:
+
+    ; Determina la mediana
+    ; Si num1 no es ni el mayor ni el menor, entonces es la mediana
+    mov al, num1
+    cmp al, nummay
+    je tg_find_med_num2
+    cmp al, nummen
+    je tg_find_med_num2
+    mov mediana, al
+    jmp tg_show_mediana
+
+  tg_find_med_num2:
+    ; Si num2 no es ni el mayor ni el menor, entonces es la mediana
+    mov al, num2
+    cmp al, nummay
+    je tg_find_med_num3
+    cmp al, nummen
+    je tg_find_med_num3
+    mov mediana, al
+    jmp tg_show_mediana
+
+  tg_find_med_num3:
+    ; Si num3 no es ni el mayor ni el menor, entonces es la mediana
+    mov al, num3
+    mov mediana, al
+
+  tg_show_mediana:
+    ; Convierte la mediana a cadena para mostrarla
+    mov ax, 0
+    mov al, mediana
+    div base[0]
+    mov s1[0], al
+    mov bh, ah
+    mov ax, 0
+    mov al, bh
+    div base[1]
+    mov s1[1], al
+    mov s1[2], ah
+    add s1[0], 48
+    add s1[1], 48
+    add s1[2], 48
+
+    ; Imprime la mediana
+    mov ah, 13h
+    mov al, 00
+    mov bh, 00
+    mov bl, 0Fh
+    mov cx, 3
+    mov dh, 10
+    mov dl, 35
+    lea bp, s1
+    int 10h
+
+    ; Espera un enter para volver al menú
+    MOV ah, 7
+    INT 21h
+    CMP al, 0Dh
+    JNE tg_menu
+    JMP tg_menu
 
 
 
