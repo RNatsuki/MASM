@@ -1,268 +1,215 @@
 .MODEL SMALL, C
-.STACK
+.STACK 100h
 .DATA
-    num1 db 0  ; Almacena el primer número
-    num2 db 0  ; Almacena el segundo número
-	  str db 6 dup(0)  ; Almacena la cadena que se imprimirá
-    s1  db 3 dup(' ') ;
-	  base db 100, 10, 1  ; Almacena las bases de los números
-    sum db 0  ; Almacena la suma de los números
+    menu db '1. Capturar tres numeros', 0Dh, 0Ah
+         db '2. Mostrar numeros ingresados', 0Dh, 0Ah
+         db '3. Mostrar el numero mas pequeno', 0Dh, 0Ah
+         db '4. Mostrar el numero mas grande', 0Dh, 0Ah
+         db '5. Calcular la mediana', 0Dh, 0Ah
+         db '6. Salir', 0Dh, 0Ah
+         db 'Selecciona una opcion (1-6): $'
 
-	txt db "Numero 1:  " ; Mensaje para el primer número
-	txt2 db "Numero 2:  " ; Mensaje para el segundo número
-	err db "Numero invalido. Presiona cualquier tecla para continuar..." ; Mensaje de error
+    enter db 0Dh
+    option db 'Opcion: '
+    input_msg db 'Ingresa el numero: $'
+    newline db 13, 10, '$'
+    invalid db 'Opcion no valida', newline, '$'
+    result db 'El resultado es: ', '$'
+    numbers db 3 dup(0)  ; Almacena los tres números ingresados
 
-  .CODE
-    .STARTUP
-        ; Establece el modo de video
-        MOV ah, 00h
-        MOV al, 03h
-        INT 10h
+.CODE
+.STARTUP
+    ; Inicializa modo de video y segmento de datos
+    MOV ax, @DATA
+    MOV ds, ax
+    MOV es, ax
 
-        ; Establece el segmento extra al segmento de datos
-        MOV ax, @DATA
-        MOV es, ax
+    ; Bucle del menú principal
+menu_loop:
+    ; Imprime el menú
+    MOV dx, OFFSET menu
+    MOV ah, 09h
+    INT 21h
 
-        ; Solicita y valida el primer número
-      tg_num1:
-        mov ah, 13h ; Función para imprimir un mensaje
-        mov al, 01h ; Número de líneas a imprimir
-        mov bh, 00  ; Página de video
-        mov bl, 0Fh ; Atributo de texto
-        mov cx, 11  ; Longitud del mensaje
-        mov dh, 1   ; Fila
-        mov dl, 1   ; Columna
-        lea bp, txt ; Dirección del mensaje
-        int 10h     ; Llamada a la interrupción de video
+    ; Solicita una opción del usuario
+    MOV dx, OFFSET option
+    MOV ah, 09h
+    INT 21h
 
-        mov di, 0   ; Índice de la cadena
-        mov si, 2   ; Índice de la base
+    ; Lee la opción del usuario
+    MOV ah, 01h
+    INT 21h
+    MOV bl, al  ; Guardar la opción
 
-      tg_req1:
-        mov ax, 0 ; Limpia el registro ax
-        mov ah, 7 ; Función para leer un carácter
-        int 21h   ; Llamada a la interrupción de teclado
+    ; Ir a la opción seleccionada
+    CMP bl, '1'
+    JE capture_numbers
+    CMP bl, '2'
+    JE show_numbers
+    CMP bl, '3'
+    JE find_smallest
+    CMP bl, '4'
+    JE find_largest
+    CMP bl, '5'
+    JE calculate_median
+    CMP bl, '6'
+    JE exit_program
 
-        cmp al, 0Dh ; Comprueba si se presionó Enter
-        je tg_con1  ; Salta a la conversión si se presionó Enter
+    ; Si no es una opción válida, mostrar mensaje de error
+    MOV dx, OFFSET invalid
+    MOV ah, 09h
+    INT 21h
+    JMP menu_loop
 
-        cmp al, 48  ; Comprueba si el carácter es menor a 0
-        jb tg_req1  ; Salta a la solicitud si el carácter es menor a 0
-        cmp al, 57  ; Comprueba si el carácter es mayor a 9
-        ja tg_req1  ; Salta a la solicitud si el carácter es mayor a 9
+capture_numbers:
+    ; Captura tres números
+    MOV di, 0
+capture_single_number:
+    MOV dx, OFFSET input_msg
+    MOV ah, 09h
+    INT 21h
 
-        mov ah, 2   ; Función para imprimir un carácter
-        mov dl, al  ; Carácter a imprimir
-        int 21h   ; Llamada a la interrupción de teclado
+    ; Leer un número del usuario
+    MOV ah, 01h
+    INT 21h
+    SUB al, '0'  ; Convertir carácter a número
+    MOV numbers[di], al
 
-        mov str[di], al ; Almacena el carácter en la cadena
-        sub str[di], 48 ; Convierte el carácter a número
-        inc di          ; Incrementa el índice de la cadena
-        cmp di, 3       ; Comprueba si la cadena tiene 3 caracteres
-        je tg_con1      ; Salta a la conversión si la cadena tiene 3 caracteres
-        jmp tg_req1     ; Vuelve a solicitar un carácter
+    INC di
+    CMP di, 3
+    JL capture_single_number
 
-      tg_con1:
-        dec di        ; Decrementa el índice de la cadena
-        mov ax, 0    ; Limpia el registro ax
-        mov al, str[di] ; Convierte el carácter a número
-        mul base[si]  ; Multiplica el número por la base correspondiente
-        jo tg_err1    ; Salta a la rutina de error si hay un desbordamiento
-        jc tg_err1    ; Salta a la rutina de error si hay un acarreo
+    JMP menu_loop
 
-        add num1, al  ; Suma el número al total
-        jc tg_err1    ; Salta a la rutina de error si hay un acarreo
+show_numbers:
+    ; Muestra los números ingresados
+    MOV dx, OFFSET result
+    MOV ah, 09h
+    INT 21h
 
-        dec si        ; Decrementa el índice de la base
-        cmp di, 0     ; Comprueba si se ha convertido el último carácter
-        je tg_num2    ; Salta a solicitar el segundo número si se ha convertido el último carácter
-        jmp tg_con1   ; Vuelve a convertir el siguiente carácter
+    MOV al, numbers[0]
+    ADD al, '0'
+    MOV ah, 02h
+    MOV dl, al
+    INT 21h
 
-      ; Solicita y valida el segundo número
-      tg_num2:
-        mov ah, 13h   ; Función para imprimir un mensaje
-        mov al, 01h   ; Número de líneas a imprimir
-        mov bh, 00    ; Página de video
-        mov bl, 0Fh   ; Atributo de texto
-        mov cx, 11    ; Longitud del mensaje
-        mov dh, 3     ; Fila
-        mov dl, 1     ; Columna
-        lea bp, txt2  ; Dirección del mensaje
-        int 10h       ; Llamada a la interrupción de video
+    MOV dl, ' '
+    INT 21h
 
-        mov di, 0     ; Índice de la cadena
-        mov si, 2     ; Índice de la base
+    MOV al, numbers[1]
+    ADD al, '0'
+    MOV dl, al
+    INT 21h
 
-      tg_req2:
-        mov ax, 0     ; Limpia el registro ax
-        mov ah, 7     ; Función para leer un carácter
-        int 21h       ; Llamada a la interrupción de teclado
+    MOV dl, ' '
+    INT 21h
 
-        cmp al, 0Dh   ; Comprueba si se presionó Enter
-        je tg_con2    ; Salta a la conversión si se presionó Enter
+    MOV al, numbers[2]
+    ADD al, '0'
+    MOV dl, al
+    INT 21h
 
-        cmp al, 48    ; Comprueba si el carácter es menor a 0
-        jb tg_req2    ; Salta a la solicitud si el carácter es menor a 0
-        cmp al, 57    ; Comprueba si el carácter es mayor a 9
-        ja tg_req2    ; Salta a la solicitud si el carácter es mayor a 9
+    MOV dx, OFFSET newline
+    MOV ah, 09h
+    INT 21h
 
-        mov ah, 2     ; Función para imprimir un carácter
-        mov dl, al    ; Carácter a imprimir
-        int 21h       ; Llamada a la interrupción de teclado
+    JMP menu_loop
 
-        mov str[di], al ; Almacena el carácter en la cadena
-        sub str[di], 48 ; Convierte el carácter a número
-        inc di          ; Incrementa el índice de la cadena
-        cmp di, 3       ; Comprueba si la cadena tiene 3 caracteres
-        je tg_con2      ; Salta a la conversión si la cadena tiene 3 caracteres
-        jmp tg_req2     ; Vuelve a solicitar un carácter
+find_smallest:
+    ; Encuentra el número más pequeño
+    MOV al, numbers[0]
+    MOV bl, numbers[1]
+    CMP al, bl
+    JLE smallest_is_al
+    MOV al, bl
 
-      tg_con2:
-        dec di          ; Decrementa el índice de la cadena
-        mov ax, 0       ; Limpia el registro ax
-        mov al, str[di] ; Convierte el carácter a número
-        mul base[si]    ; Multiplica el número por la base correspondiente
-        jo tg_err1      ; Salta a la rutina de error si hay un desbordamiento
-        jc tg_err1      ; Salta a la rutina de error si hay un acarreo
+smallest_is_al:
+    MOV bl, numbers[2]
+    CMP al, bl
+    JLE smallest_found
+    MOV al, bl
 
-        add num2, al    ; Suma el número al total
-        jc tg_err1      ; Salta a la rutina de error si hay un acarreo
+smallest_found:
+    MOV dx, OFFSET result
+    MOV ah, 09h
+    INT 21h
 
-        dec si          ; Decrementa el índice de la base
-        cmp di, 0       ; Comprueba si se ha convertido el último carácter
-        je tg_prnt      ; Salta a imprimir los números si se ha convertido el último carácter
-        jmp tg_con2     ; Vuelve a convertir el siguiente carácter
+    ADD al, '0'
+    MOV ah, 02h
+    MOV dl, al
+    INT 21h
 
-      tg_err1:
-        ; Establece el modo de video para limpiar la pantalla
-        MOV ah, 00h
-        MOV al, 03h
-        INT 10h
+    MOV dx, OFFSET newline
+    MOV ah, 09h
+    INT 21h
 
-        ; Imprime el mensaje de error
-        mov ah, 13h
-        mov al, 01h
-        mov bh, 00
-        mov bl, 4Fh
-        mov cx, 59
-        mov dh, 0
-        mov dl, 0
-        lea bp, err
-        int 10h
+    JMP menu_loop
 
-        ; Lee un carácter para esperar la entrada del usuario
-        mov ah, 7
-        int 21h
+find_largest:
+    ; Encuentra el número más grande
+    MOV al, numbers[0]
+    MOV bl, numbers[1]
+    CMP al, bl
+    JGE largest_is_al
+    MOV al, bl
 
-        ; Establece el modo de video para limpiar la pantalla
-        MOV ah, 00h
-        MOV al, 03h
-        INT 10h
+largest_is_al:
+    MOV bl, numbers[2]
+    CMP al, bl
+    JGE largest_found
+    MOV al, bl
 
-        ; Reinicia las variables y vuelve a solicitar el primer número
-        mov di, 0
-        mov si, 2
-        mov num1, 0
-        mov str[0], 0
-        mov str[1], 0
-        mov str[2], 0
+largest_found:
+    MOV dx, OFFSET result
+    MOV ah, 09h
+    INT 21h
 
-        jmp tg_num1
+    ADD al, '0'
+    MOV ah, 02h
+    MOV dl, al
+    INT 21h
 
-      tg_prnt:
-        ; Convierte los números en cadenas y realiza cualquier operación necesaria
-        mov ax, 0
-        mov al, num1
-        div base[0]
-        mov s1[0], al
-        mov bh, ah
-        mov ax, 0
-        mov al, bh
-        div base[1]
-        mov s1[1], al
-        mov s1[2], ah
-        add s1[0], 48
-        add s1[1], 48
-        add s1[2], 48
+    MOV dx, OFFSET newline
+    MOV ah, 09h
+    INT 21h
 
+    JMP menu_loop
 
-        ; Imprime el primer número
-        mov ah, 13h
-        mov al, 00
-        mov bh, 00
-        mov bl, 0Fh
-        mov cx, 3
-        mov dh, 12
-        mov dl, 35
-        lea bp, s1
-        int 10h
+calculate_median:
+    ; Calcula la mediana de tres números
+    MOV al, numbers[0]
+    MOV bl, numbers[1]
+    MOV cl, numbers[2]
 
-        ; Limpia la cadena para el segundo número
-        mov di, 0
-        mov si, 2
-        mov str[0], 0
-        mov str[1], 0
-        mov str[2], 0
+    ; Ordenar los tres números para encontrar la mediana
+    CMP al, bl
+    JLE sort_1
+    XCHG al, bl  ; Intercambiar si es necesario
+sort_1:
+    CMP bl, cl
+    JLE sort_2
+    XCHG bl, cl  ; Intercambiar si es necesario
+sort_2:
+    CMP al, bl
+    JLE sort_3
+    XCHG al, bl  ; Intercambiar si es necesario
+sort_3:
 
-        ; Convierte los números en cadenas y realiza cualquier operación necesaria
-        mov ax, 0
-        mov al, num2
-        div base[0]
-        mov s1[0], al
-        mov bh, ah
-        mov ax, 0
-        mov al, bh
-        div base[1]
-        mov s1[1], al
-        mov s1[2], ah
-        add s1[0], 48
-        add s1[1], 48
-        add s1[2], 48
+    MOV dx, OFFSET result
+    MOV ah, 09h
+    INT 21h
 
-        ; Imprime el segundo número
-        mov ah, 13h
-        mov al, 00
-        mov bh, 00
-        mov bl, 0Fh
-        mov cx, 3
-        mov dh, 13
-        mov dl, 35
-        lea bp, s1
-        int 10h
+    ADD bl, '0'
+    MOV ah, 02h
+    MOV dl, bl
+    INT 21h
 
-        ; Finaliza el programa
-      tg_sum:
-      mov ax, 0
-      mov al, num1
-      add al, num2
-      mov sum, al
+    MOV dx, OFFSET newline
+    MOV ah, 09h
+    INT 21h
 
-      ; Convierte los números en cadenas y realiza cualquier operación necesaria
-        mov ax, 0
-        mov al, sum
-        div base[0]
-        mov s1[0], al
-        mov bh, ah
-        mov ax, 0
-        mov al, bh
-        div base[1]
-        mov s1[1], al
-        mov s1[2], ah
-        add s1[0], 48
-        add s1[1], 48
-        add s1[2], 48
+    JMP menu_loop
 
-        ; Imprime el primer númeronum1
-        mov ah, 13h
-        mov al, 00
-        mov bh, 00
-        mov bl, 0Fh
-        mov cx, 3
-        mov dh, 20
-        mov dl, 35
-        lea bp, s1
-        int 10h
-
-        .EXIT
-
+exit_program:
+    .EXIT
 END
