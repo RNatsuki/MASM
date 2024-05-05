@@ -56,8 +56,6 @@
     MOV al, 03h
     INT 10h
 
-
-
     ; Print option -> 1. Capturar numeros
     MOV cx, 0
     MOV ah, 13h ; Función para imprimir un mensaje
@@ -118,7 +116,6 @@
     LEA bp, op5 ; Dirección del mensaje
     INT 10h     ; Llamada a la interrupción de video
 
-
     ; Print message -> Opcion:
     MOV cx, 0
     MOV ah, 13h ; Función para imprimir un mensaje
@@ -143,7 +140,6 @@
     LEA bp, myname ; Dirección del mensaje
     INT 10h     ; Llamada a la interrupción de video
 
-
   tg_m_read:
     MOV ax, 0
     MOV ah, 7
@@ -153,7 +149,7 @@
 
     CMP al, 49
     jb tg_m_read
-    CMP al, 53
+    CMP al, 54
     ja tg_m_read
 
     mov ah, 2   ; Función para imprimir un carácter
@@ -347,9 +343,6 @@
 
         jmp tg_num1
 
-
-
-
       tg_num3:
         mov ah, 13h
         mov al, 01h
@@ -389,7 +382,6 @@
         je tg_con3
         jmp tg_req3
 
-
       tg_con3:
         dec di
         mov ax, 0
@@ -406,9 +398,6 @@
         je tg_menu
         jmp tg_con3
 
-
-
-
 tg_show:
    ; Convierte los números en cadenas y realiza cualquier operación necesaria
         mov ax, 0
@@ -424,7 +413,6 @@ tg_show:
         add s1[0], 48
         add s1[1], 48
         add s1[2], 48
-
 
         ; Imprime el primer número
         mov ah, 13h
@@ -470,7 +458,6 @@ tg_show:
         lea bp, s1
         int 10h
 
-
         ; Limpia la cadena para el tercer número
         mov di, 0
         mov si, 2
@@ -504,15 +491,12 @@ tg_show:
         lea bp, s1
         int 10h
 
-
     ; espera un enter
     MOV ah, 7
     INT 21h
     CMP al, 0Dh
     JNE tg_menu
     JMP tg_menu
-
-
 
   tg_may:
     ; Limpiar pantalla antes de mostrar el número mayor
@@ -570,12 +554,6 @@ tg_show:
     CMP al, 0Dh
     JNE tg_menu
     JMP tg_menu
-
-
-
-
-
-
 
   tg_men:
     ; Limpiar pantalla antes de mostrar el número menor
@@ -727,12 +705,20 @@ tg_show:
     JNE tg_menu
     JMP tg_menu
 
-
-
  tg_exit:
 
 
   .EXIT
-
+  ; Print option -> 1. Capturar numeros
+    MOV cx, 0
+    MOV ah, 13h ; Función para imprimir un mensaje
+    MOV al, 01h ; Número de líneas a imprimir
+    MOV bh, 00  ; Página de video
+    MOV bl, 0Fh ; Atributo de texto
+    MOV cx, 11  ; Longitud del mensaje
+    MOV dh, 20   ; Fila
+    MOV dl, 29   ; Columna
+    LEA bp, exitmsg ; Dirección del mensaje
+    INT 10h     ; Llamada a la interrupción de video
 
 END
