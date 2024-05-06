@@ -41,4 +41,36 @@ m_imptxt MACRO color,len,row,col,msg
 ENDM
 
 
+m_impnum  MACRO num, ms1, mbse, cnum, row, col
+    ; num: el número a imprimir
+    ; ms1: la cadena donde se guardará el número
+    ; mbse: la base del número
+    ; cnum: El color del número
+    ; row: la fila donde se imprimirá
+    ; col: la columna donde se imprimirá
+    
+    mov ax, 0
+    mov al, num
+    div mbse[0]
+    mov ms1[0], al
+    mov bh, ah
+    mov ax, 0
+    mov al, bh
+    div mbse[1]
+    mov ms1[1], al
+    mov ms1[2], ah
+    add ms1[0], 48
+    add ms1[1], 48
+    add ms1[2], 48
 
+    ; Imprime la mediana
+    mov ah, 13h
+    mov al, 00
+    mov bh, 00
+    mov bl, cnum
+    mov cx, 3
+    mov dh, row
+    mov dl, col
+    lea bp, ms1
+    int 10h
+ENDM
