@@ -5,19 +5,12 @@ ENDIF
 .MODEL small, C
 .STACK
 .DATA
-  txt db 'Rodrigo Ibarra'
+  txt db 'Hello World!'
 .CODE
   .STARTUP
-    ; Video Mode
-    MOV ah, 00h
-    MOV al, 03h
-    INT 10h
 
-    ; Set Data Segment
-    MOV ax, @DATA
-    MOV es, ax
-
-    m_imptxt 0fh, 14, 10, 20, txt
+    m_ini ; Initialize the video mode
+    m_imptxt 0fh, 12, 10, 20, txt ; Print the text
 
 
   .EXIT
