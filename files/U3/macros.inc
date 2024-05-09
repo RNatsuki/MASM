@@ -12,9 +12,6 @@ m_ini MACRO
   MOV es, ax
 ENDM
 
-
-
-
 m_imptxt MACRO color,len,row,col,msg
   ;color: the color of the string
   ;len: the length of the string
@@ -73,4 +70,96 @@ m_impnum  MACRO num, ms1, mbse, cnum, row, col
     mov dl, col
     lea bp, ms1
     int 10h
+ENDM
+
+
+m_capnum  MACRO mnum, mstr, mbase, mtxt, merr
+    ; mnum: la variable donde se guardará el número
+    ; mstr: la cadena donde se guardará el número
+    ; mbase: la base del número
+    ; mtxt: el mensaje de entrada
+    ; merr: el mensaje de error
+
+    LOCAL tg_num1, tg_req1, tg_con1, tg_err1, tg_slr
+    tg_num1:
+
+
+        m_imptxt 0FH, 7, 1,1,mtxt
+
+        ; ============ DECLARE THE COUNT ============
+        mov di,0
+        mov si,2
+        ; ============ END DECLARE THE COUNT ============
+
+      tg_req1:
+        ; ============ READ ============
+        mov ax, 0 ; set the function to read a character (00h=> read a character)
+        mov ah, 7 ; the cursor will be moved to the next space after reading a character (00=> the cursor will not be moved) (01=> the cursor will be moved)
+        int 21h  ; call the interruption 21h=> read a character
+
+        cmp al, 0Dh ; compare the input with 13 (13=> enter)
+        je tg_con1 ; if the input is 13, then continue
+
+        cmp al, 48 ; compare the input with 48 (48=> 0)
+        jb tg_req1 ; if the input is less than 48, then read again
+        cmp al, 57 ; compare the input with 57 (57=> 9)
+        ja tg_req1 ; if the input is greater than 57, then read again
+
+
+         ;============= PRINT THE NUMBER ============
+        mov ah,2
+        mov dl, al
+        int 21h
+        ;============= END PRINT ====================
+        mov mstr[di], al ; store the input in the string
+        sub mstr[di], 48 ; convert the character to a number (48 because the ascii code of 0 is 48) when the input is 0, the output will be 0, when the input is 1, the output will be 1, ..., when the input is 9, the output will be 9
+        inc di; increase the count
+        cmp di, 3 ;
+        je tg_con1
+        jmp tg_req1 ; read again
+        ; ============ END READ ============
+
+
+
+      tg_con1:
+        dec di
+        mov ax,0
+        mov al,mstr[di]
+        mul mbase[si]
+        jo tg_err1
+        jc tg_err1
+
+        add mnum, al
+        jc tg_err1
+
+        dec si
+        cmp di, 0
+        je tg_slr
+        jmp tg_con1
+
+
+      tg_err1:
+
+        m_clear
+        m_imptxt 4FH, 59, 0, 0, merr
+        mov ah, 7 ; the cursor will be moved to the next space after reading a character (00=> the cursor will not be moved) (01=> the cursor will be moved)
+        int 21h  ; call the interruption 21h=> read a character
+
+        m_clear
+        mov di, 0
+        mov si, 2
+        mov mnum, 0
+        mov mstr[0], 0
+        mov mstr[1], 0
+        mov mstr[2], 0
+
+        jmp tg_num1
+      tg_slr:
+ENDM
+
+
+m_clear MACRO
+        MOV ah, 00h   ; set the function to set the video mode (00h=> set the video mode)
+        MOV al, 03h   ; set the video mode to 03h=> 80x25 monochrome : 16 colors (4 bits)
+        INT 10h       ; call the interruption 10h=> set the video mode to 03h
 ENDM

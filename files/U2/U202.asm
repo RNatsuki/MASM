@@ -139,10 +139,6 @@ COMMENT /*
         mov str[2], 0
 
         jmp tg_num1
-
-
-      tg_prnt:
-        ; PRINT THE NUMBER
       tg_slr:
 
 
