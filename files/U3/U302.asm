@@ -16,7 +16,9 @@ ENDIF
     m_ini ; Initialize the video mode
 
     m_capnum num, s1, base, msg, merro
+    m_capnum num, s1, base, msg, merro
 
+    m_impnum num, s1, base, 0FH, 3, 20
 
   .EXIT
 END

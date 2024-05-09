@@ -81,6 +81,7 @@ m_capnum  MACRO mnum, mstr, mbase, mtxt, merr
     ; merr: el mensaje de error
 
     LOCAL tg_num1, tg_req1, tg_con1, tg_err1, tg_slr
+    mov mnum, 0
     tg_num1:
 
 
