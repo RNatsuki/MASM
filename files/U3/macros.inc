@@ -73,7 +73,7 @@ m_impnum  MACRO num, ms1, mbse, cnum, row, col
 ENDM
 
 
-m_capnum  MACRO mnum, mstr, mbase, mtxt, merr
+m_capnum  MACRO mnum, mstr, mbase, mtxt, merr, row, col
     ; mnum: la variable donde se guardará el número
     ; mstr: la cadena donde se guardará el número
     ; mbase: la base del número
@@ -85,7 +85,7 @@ m_capnum  MACRO mnum, mstr, mbase, mtxt, merr
     tg_num1:
 
 
-        m_imptxt 0FH, 7, 1,1,mtxt
+        m_imptxt 0FH, 7, row,col,mtxt
 
         ; ============ DECLARE THE COUNT ============
         mov di,0
