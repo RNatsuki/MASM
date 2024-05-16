@@ -24,6 +24,12 @@ include macros.inc
 
   txt0 db 6 dup(0)
 
+  num1 db 0
+  num2 db 0
+  num3 db 0
+
+  nummay db 0
+
   .CODE
     .STARTUP
       m_ini
@@ -39,7 +45,66 @@ include macros.inc
         m_imptxt 0FH, 25, 6, 30, op5
         m_imptxt 0FH, 8, 7, 30, op6
 
-        m_capnum opt, s1, base, opmsg, err, 9, 35
+        m_capnum opt, s1, base, opmsg, 8, err, 9, 35
+
+
+        cmp opt, 1
+        je captura
+        cmp opt, 2
+        je ver
+        cmp opt, 3
+        je mayor
+        cmp opt, 4
+        je menor
+        cmp opt, 5
+        je mediana
+        cmp opt, 6
+        je salir
+
+        jmp e_menu
+
+      captura:
+        m_clear
+        m_capnum num1, s1, base, txt1, 10,  err, 3, 35
+        m_clear
+        m_capnum num2, s1, base, txt2, 10,  err, 3, 35
+        m_clear
+        m_capnum num3, s1, base, txt3, 10, err, 3, 35
+        jmp e_menu
+      ver:
+        m_clear
+        m_impnum num1, s1, base, 0Fh, 15, 30
+        m_impnum num2, s1, base, 0Fh, 16, 30
+        m_impnum num3, s1, base, 0Fh, 17, 30
+        m_waitkey
+        jmp e_menu
+      mayor:
+        m_clear
+        mov al, num1
+        mov nummay, al
+
+        mov al, num2
+        cmp al, nummay
+        jle tg_check3
+        mov nummay, al
+
+      tg_check3:
+        mov al, num3
+        cmp al, nummay
+        jle tg_display_may
+        mov nummay, al
+
+      tg_display_may:
+        m_impnum nummay, s1, base, 0Fh, 15, 30
+        m_waitkey
+        jmp e_menu
+
+      menor:
+
+      mediana:
+
+      salir:
+
 
     .EXIT
 

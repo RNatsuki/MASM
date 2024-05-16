@@ -73,7 +73,7 @@ m_impnum  MACRO num, ms1, mbse, cnum, row, col
 ENDM
 
 
-m_capnum  MACRO mnum, mstr, mbase, mtxt, merr, row, col
+m_capnum  MACRO mnum, mstr, mbase, mtxt, txtlen, merr, row, col
     ; mnum: la variable donde se guardará el número
     ; mstr: la cadena donde se guardará el número
     ; mbase: la base del número
@@ -85,7 +85,7 @@ m_capnum  MACRO mnum, mstr, mbase, mtxt, merr, row, col
     tg_num1:
 
 
-        m_imptxt 0FH, 7, row,col,mtxt
+        m_imptxt 0FH, txtlen, row,col,mtxt
 
         ; ============ DECLARE THE COUNT ============
         mov di,0
@@ -164,3 +164,10 @@ m_clear MACRO
         MOV al, 03h   ; set the video mode to 03h=> 80x25 monochrome : 16 colors (4 bits)
         INT 10h       ; call the interruption 10h=> set the video mode to 03h
 ENDM
+
+
+m_waitkey MACRO
+        MOV ah, 7 ; the cursor will be moved to the next space after reading a character (00=> the cursor will not be moved) (01=> the cursor will be moved)
+        INT 21h  ; call the interruption 21h=> read a character
+ENDM
+
