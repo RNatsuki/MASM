@@ -29,6 +29,8 @@ include macros.inc
   num3 db 0
 
   nummay db 0
+  nummen db 0
+  nummed db 0
 
   .CODE
     .STARTUP
@@ -100,9 +102,46 @@ include macros.inc
         jmp e_menu
 
       menor:
+        m_clear
+        mov al, num1
+        mov nummen, al
 
+        mov al, num2
+        cmp al, nummen
+        jge tg_check4
+        mov nummen, al
+
+      tg_check4:
+        mov al, num3
+        cmp al, nummen
+        jge tg_display
+
+        mov nummen, al
+
+      tg_display:
+        m_impnum nummen, s1, base, 0Fh, 15, 30
+        m_waitkey
+        jmp e_menu
       mediana:
+       m_clear
+        mov al, num1
+        mov nummed, al
 
+        mov al, num2
+        cmp al, nummed
+        jge tg_check5
+        mov nummed, al
+
+      tg_check5:
+        mov al, num3
+        cmp al, nummed
+        jge tg_display_med
+        mov nummed, al
+
+      tg_display_med:
+        m_impnum nummed, s1, base, 0Fh, 15, 30
+        m_waitkey
+        jmp e_menu
       salir:
 
 
