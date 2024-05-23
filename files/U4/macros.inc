@@ -185,3 +185,65 @@ m_cadena  MACRO txt
   e_salir:
 
 ENDM
+
+
+m_cfile MACRO name, txt, txterr
+    LOCAL e_salir, e_error
+    ; name: el nombre del archivo
+    ; txt: la cadena que dira el mensaje de exito
+    ; txterr: la cadena que dira el mensaje de error
+
+    ; Aquí se crea el archivo
+    mov ah, 3Ch
+    mov cx, 0
+    mov dx, offset name
+    int 21h
+    jc e_error
+    ; aqui se libera el dominio del archivo
+    mov bx, ax
+    mov ah, 3Eh
+    int 21h
+
+
+    m_imptxt 9F, 25, 5, 15, txt
+    jmp e_salir
+    e_error:
+      m_imptxt 6F, 26, 5, 15, txterr
+    e_salir:
+
+
+ENDM
+
+
+m_efile MACRO name, txt, tsucc, txterr
+  LOCAL e_salir, e_error
+  ; name: el nombre del archivo
+  ; txt: la cadena que dira el mensaje de exito
+  ; txterr: la cadena que dira el mensaje de error
+  m_cadena txt
+  mov ah, 3Dh
+  mov al, 1h ;Modo escritura
+  mov dx, offset name
+  int 21h
+  jc e_error
+
+  mov bx, ax
+  mov cx, si ; Tamaño del buffer
+  mov dx, offset txt
+  mov ah, 40h
+  int 21h
+  cmp cx, ax
+  jne e_error
+
+  mov ah, 3Eh
+  int 21h
+
+  m_imptxt 9F, 18, 5, 15, tsucc
+  jmp e_salir
+  e_error:
+    m_imptxt 6F, 32, 5, 15, txterr
+
+
+  e_salir:
+
+ENDM
