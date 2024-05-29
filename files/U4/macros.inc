@@ -72,7 +72,6 @@ m_impnum  MACRO num, ms1, mbse, cnum, row, col
     int 10h
 ENDM
 
-
 m_capnum  MACRO mnum, mstr, mbase, mtxt, txtlen, merr, row, col
     ; mnum: la variable donde se guardará el número
     ; mstr: la cadena donde se guardará el número
@@ -158,13 +157,11 @@ m_capnum  MACRO mnum, mstr, mbase, mtxt, txtlen, merr, row, col
       tg_slr:
 ENDM
 
-
 m_clear MACRO
         MOV ah, 00h   ; set the function to set the video mode (00h=> set the video mode)
         MOV al, 03h   ; set the video mode to 03h=> 80x25 monochrome : 16 colors (4 bits)
         INT 10h       ; call the interruption 10h=> set the video mode to 03h
 ENDM
-
 
 m_waitkey MACRO
         MOV ah, 7 ; the cursor will be moved to the next space after reading a character (00=> the cursor will not be moved) (01=> the cursor will be moved)
@@ -185,7 +182,6 @@ m_cadena  MACRO txt
   e_salir:
 
 ENDM
-
 
 m_cfile MACRO name, txt, txterr
     LOCAL e_salir, e_error
@@ -214,7 +210,6 @@ m_cfile MACRO name, txt, txterr
 
 ENDM
 
-
 m_efile MACRO name, txt, tsucc, txterr
   LOCAL e_salir, e_error
   ; name: el nombre del archivo
@@ -228,7 +223,7 @@ m_efile MACRO name, txt, tsucc, txterr
   jc e_error
 
   mov bx, ax
-  mov cx, si ; Tamaño del buffer
+  mov cx, 50 ; Tamaño del buffer
   mov dx, offset txt
   mov ah, 40h
   int 21h
@@ -246,4 +241,23 @@ m_efile MACRO name, txt, tsucc, txterr
 
   e_salir:
 
+ENDM
+
+;Macro para capturar una cadena de texto
+m_capstr MACRO txt, txtlen, row, col
+  LOCAL tg_req, tg_con
+  mov si, 0
+  tg_req:
+    mov ah, 7 ; the cursor will be moved to the next space after reading a character (00=> the cursor will not be moved) (01=> the cursor will be moved)
+    int 21h  ; call the interruption 21h=> read a character
+    cmp al, 0Dh ; compare the input with 13 (13=> enter)
+    je tg_con ; if the input is 13, then continue
+    mov txt[si], al ; store the input in the string
+    inc si ; increase the count
+    cmp si, txtlen ; compare the count with the length of the string
+    je tg_con ; if the count is equal to the length of the string, then continue
+    jmp tg_req ; read again
+  tg_con:
+    mov txt[si], 0 ; add the null character at the end of the string
+    m_imptxt 0FH, txtlen, row, col, txt ; print the string
 ENDM
